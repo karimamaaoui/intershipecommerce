@@ -1,10 +1,14 @@
-
-import 'package:flutter/material.dart';
+import 'package:internshipapplication/Pages/Views/Screens/AnnounceDetails.dart';
 import 'package:internshipapplication/Pages/Views/Screens/AnnouncesCRUD/EditeAnnounce.dart';
 import 'package:internshipapplication/Pages/Views/Screens/MyAppBAr.dart';
+import 'package:internshipapplication/Pages/Views/widgets/side_bar.dart';
+import 'package:internshipapplication/Pages/app_color.dart';
+import 'package:internshipapplication/Pages/core/model/AdsFeaturesModel.dart';
 import 'package:internshipapplication/Pages/core/model/AnnounceModel.dart';
-
-
+import 'package:internshipapplication/Pages/core/model/ImageModel.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class MyAnnounces extends StatefulWidget {
   const MyAnnounces({super.key});
@@ -14,200 +18,315 @@ class MyAnnounces extends StatefulWidget {
 }
 
 class _MyAnnouncesState extends State<MyAnnounces> {
-  List<dynamic> announces = [
-    AnnounceModel(id:1,title:"ITIWIT",description:"CANOE KAYAK CONFORTABLE",price:1890,imagePrinciple : "assets/images/Announces/deals1.png",like:false),
-    AnnounceModel(id:2,title:"OLAIAN",description:"SURFER BOARDSHORT",price:50,imagePrinciple : "assets/images/Announces/deals2.png",like: false),
-    AnnounceModel(id:3,title:"SUBEA",description:"CHAUSSURES ELASTIQUE ADULTE",price:50,imagePrinciple :"assets/images/Announces/deals3.png",like: false),
-  ];
+  List<AnnounceModel> announces = [];
+  int MaxPage = 0;
+  int page = 0;
+  String? imageUrl;
+//get all announces by user
+  Future<List<AnnounceModel>> apicall(int iduser) async {
+    try {
+      http.Response response, nbads;
+      response = await http.get(Uri.parse(
+          "http://10.0.2.2:5055/api/Ads/getAdsByUser?iduser=20&page=1"));
+
+      nbads = await http.get(
+          Uri.parse("http://10.0.2.2:5055/api/Ads/NbrAdsByUser?iduser=20"));
+      if (response.statusCode == 200) {
+        var responseBody = response.body;
+        announces = (jsonDecode(responseBody) as List)
+            .map((json) => AnnounceModel.fromJson(json))
+            .toList();
+
+        int x = int.parse(nbads.body);
+        print("response ********************** ${x}");
+        MaxPage = x ~/ 4;
+        if (x % 4 > 0) {
+          MaxPage += 1;
+        }
+
+        return announces;
+      } else {
+        // Handle the case when the API call returns an error status code
+        throw Exception(
+            'Failed to fetch data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle any exceptions that may occur during the API call
+      print('Error fetching data: $e');
+      throw Exception('Failed to fetch data. Error: $e');
+    }
+  }
+
+  //delete announce
+  void deleteItem(int id) async {
+    bool imgdel = await ImageModel().deleteData(id);
+    bool Af = await AdsFeature().deleteData(id);
+    if (imgdel && Af) {
+      bool isDeleted = await AnnounceModel().deleteData(id);
+      if (isDeleted) {
+        print("Item with ID $id deleted successfully.");
+        announces.removeWhere((element) => element.idAds == id);
+        setState(() {
+          announces;
+        });
+      } else {
+        print("Failed to delete item with ID $id.");
+      }
+    }
+  }
+
   @override
   void initState() {
-
     super.initState();
+    apicall(1).then((data) {
+      setState(() {
+        announces = data;
+      });
+    });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.yellow[400],
-          onPressed: (){
-            Navigator.of(context).pushNamed("AddAnnounce");
-          },
-          child: Icon(Icons.add,color: Colors.indigo,),),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        appBar:MyAppBar(title:"My Announces" ,),/* AppBar(
-          elevation: 1,
-          iconTheme: IconThemeData(color: Colors.white),
-          backgroundColor: Colors.indigo[900],
-          title: Text("My Announces",
-            style: TextStyle(
-                color: Colors.white
-            ),
-          ),
-          centerTitle: true,
-        ),*/
-        body:Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, 70.0),
-          child: ListView.builder(
-
-              shrinkWrap:true,
-              itemCount: announces.length,
-              itemBuilder:(context,index){
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 12),
-                  child:
-                  Card(
-                    color: Colors.white,
-                    borderOnForeground: true,
-                    elevation: 1,
-                    shape: RoundedRectangleBorder(
+      drawer: SideBar(),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.indigo,
+        onPressed: () {
+          Navigator.of(context).pushNamed("AddAnnounce");
+        },
+        child: Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endContained,
+      appBar: MyAppBar(
+        title: "My Announces",
+      ),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(8.0, 20.0, 8.0, 8.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: announces.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                    child: Card(
+                      color: Colors.white,
+                      borderOnForeground: true,
+                      elevation: 1,
+                      shape: RoundedRectangleBorder(
                         side: BorderSide(
                           color: Colors.black.withOpacity(0.20),
                         ),
-                        borderRadius: BorderRadius.circular(10.0)
-                    ),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Container(
-                            height: 200, // Set the desired height for the container
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                  color: Colors.black.withOpacity(0)
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Container(
+                              width: 200,
+                              height: 200,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.black.withOpacity(0)),
                               ),
-
-                              image: DecorationImage(
-
-                                image: AssetImage('${announces[index].imagePrinciple}'), // Replace with your image path
+                              child: Image.network(
+                                announces[index].imageUrl!,
                                 fit: BoxFit.fill,
-
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Center(
+                                    child: Text('Image not found'),
+                                  );
+                                },
                               ),
                             ),
-
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      '${announces[index].title}',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        '${announces[index].title}',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                /*
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child:Text(
-                                    '${annonces[index]["datepub"]}',
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "${announces[index].description}",
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
+                                      color: Colors.grey[500],
                                     ),
                                   ),
-                                )*/
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
-                            child: Row(
-                              children: [
-                                Text("${announces[index].description}",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey[500],
-                                  ),
-                                )
-                              ],
-
-                            ),
-                          ),
-
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
-                            child: Row(
-                              children: [
-                                Text("${announces[index].price} DT",
-                                  style: TextStyle(
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    "${announces[index].price} DT",
+                                    style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.indigo
+                                      color: Colors.indigo,
+                                    ),
                                   ),
-                                )
-                              ],
-
+                                ],
+                              ),
                             ),
-                          ),
-
-                          SizedBox(height: 20,),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TextButton.icon(
-                                style: ButtonStyle(
-                                  // backgroundColor: MaterialStateProperty.all<Color>(Colors.grey), // Replace with your desired background color
-                                ),
-                                onPressed: () {
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (context)=>EditeAnnounce(
-
-                                    id: announces[index].id,
-                                    title: announces[index].title,
-                                    description: announces[index].description,
-                                    price: announces[index].price,
-                                    imagePrinciple: announces[index].imagePrinciple,
-                                    boosted: announces[index].boosted,
-                                  )
-                                  )
-                                  );
-                                },
-                                icon: Icon(Icons.edit,color: Colors.greenAccent,), // Replace with your desired icon
-                                label: Text('Edit',style: TextStyle(color: Colors.black),),
+                            // Add "Details" button
+                            TextButton.icon(
+                              style: ButtonStyle(),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => AnounceDetails(
+                                      Announce: announces[index],
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: Icon(
+                                Icons.details,
+                                color: Colors.blue,
                               ),
-                              SizedBox(width: 20,),
-                              TextButton.icon(
-                                style: ButtonStyle(
-                                  //backgroundColor: MaterialStateProperty.all<Color>(Colors.grey), // Replace with your desired background color
-                                ),
-                                onPressed: () {
-                                  // Add your onPressed logic here
-                                },
-                                icon: Icon(Icons.flash_on,color: Colors.yellowAccent,), // Replace with your desired icon
-                                label: Text('Boost',style: TextStyle(color: Colors.black),),
+                              label: Text(
+                                'Details',
+                                style: TextStyle(color: Colors.black),
                               ),
-                              SizedBox(width: 20,),
-                              TextButton.icon(
-                                style: ButtonStyle(
-                                  //backgroundColor: MaterialStateProperty.all<Color>(Colors.grey), // Replace with your desired background color
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                TextButton.icon(
+                                  style: ButtonStyle(),
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .push(
+                                      MaterialPageRoute(
+                                        builder: (context) => EditeAnnounce(
+                                          announce: announces[index],
+                                        ),
+                                      ),
+                                    )
+                                        .then((value) {
+                                      if (value != null && value is Map) {
+                                        AnnounceModel res = value['updatedAnnounce'];
+                                        if (res != null) {
+                                          setState(() {
+                                            announces.removeWhere((a) => res.idAds == a.idAds);
+                                            announces.add(res);
+                                          });
+                                        }
+                                      }
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.edit,
+                                    color: Colors.greenAccent,
+                                  ),
+                                  label: Text(
+                                    'Edit',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
                                 ),
-                                onPressed: () {
-                                  setState(() {
-                                    announces.removeAt(index);
-                                  });
-                                },
-                                icon: Icon(Icons.delete,color: Colors.red,), // Replace with your desired icon
-                                label: Text('Delete',style: TextStyle(color: Colors.black),),
-                              ),
-                              // Add more icons as needed
-                            ],
-                          ),
-                        ],
+                                SizedBox(width: 20),
+                                TextButton.icon(
+                                  style: ButtonStyle(),
+                                  onPressed: () {},
+                                  icon: Icon(
+                                    Icons.flash_on,
+                                    color: Colors.yellowAccent,
+                                  ),
+                                  label: Text(
+                                    'Boost',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                                SizedBox(width: 20),
+                                TextButton.icon(
+                                  style: ButtonStyle(),
+                                  onPressed: () {
+                                    deleteItem(int.parse(announces[index].idAds.toString()));
+                                  },
+                                  icon: Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  label: Text(
+                                    'Delete',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                                // Add more icons as needed
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              }),
-        )
 
+                    ),
+                  );
+                },
+              ),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 36, vertical: 18),
+                backgroundColor: AppColor.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+                shadowColor: Colors.transparent,
+              ),
+              onPressed: () async {
+                if (page < MaxPage) {
+                  setState(() {
+                    page = page + 1;
+                    apicall(1).then((data) {
+                      setState(() {
+                        announces = data;
+                      });
+                    });
+                  });
+                }
+              },
+              child: Text(
+                "Show More",
+                style: TextStyle(fontSize: 14, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
+
+

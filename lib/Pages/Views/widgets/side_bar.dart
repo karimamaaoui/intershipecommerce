@@ -1,19 +1,61 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:internshipapplication/Pages/Views/Screens/products/productList.dart';
+import 'package:internshipapplication/Pages/Views/Screens/profile/profileScreen.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class SideBar extends StatelessWidget {
-  const SideBar({Key? key});
+class SideBar extends StatefulWidget {
+  const SideBar({Key? key}) : super(key: key);
+
+  @override
+  State<SideBar> createState() => _SideBarState();
+}
+
+class _SideBarState extends State<SideBar> {
+  String? token; // Declare the token variable
+  String firstname='';
+  @override
+  void initState() {
+    super.initState();
+    _loadAuthToken();
+
+
+  }
+
+  Future<void> _loadAuthToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      token = prefs.getString('token');
+    });
+    var decodedToken = JwtDecoder.decode(token!);
+    firstname = decodedToken['firstname'] ?? '';
+
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (token != null) {
+      var decodedToken = JwtDecoder.decode(token!);
+      String id = decodedToken['id'] ?? '';
+    }
+
+    Future<String?> _getAuthToken() async {
+      final prefs = await SharedPreferences.getInstance();
+      print("******************************** ${prefs.getString('token')}");
+      return prefs.getString('token');
+
+    }
+
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          UserAccountsDrawerHeader(
+
+      UserAccountsDrawerHeader(
             accountName: Text(
-              "Ala Torkhani",
+              "${firstname}",
               style: TextStyle(
                 fontSize: 18.0,
               ),
@@ -23,7 +65,7 @@ class SideBar extends StatelessWidget {
               radius: 50,
               child: ClipOval(
                 child: Image.asset(
-                  "assets/Torkhani_Ala.jpg",
+                  "assets/images/as.png",
                   fit: BoxFit.cover,
                 ),
               ),
@@ -44,7 +86,14 @@ class SideBar extends StatelessWidget {
                 fontSize: 18.0,
               ),
             ),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileScreen(),
+                ),
+              );
+            },
           ),
           ListTile(
             leading: Icon(Icons.shopping_bag_outlined),

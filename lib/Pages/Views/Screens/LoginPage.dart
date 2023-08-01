@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:internshipapplication/ApiService.dart';
+import 'package:internshipapplication/Pages/Views/Screens/FogotPassword.dart';
 import 'package:internshipapplication/Pages/Views/Screens/RegisterPage.dart';
 import 'package:internshipapplication/Pages/Views/Screens/pageSwitcher.dart';
 import 'package:internshipapplication/Pages/app_color.dart';
@@ -16,7 +17,6 @@ class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
-
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passController = TextEditingController();
@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-    checkLoggedIn();
+   //checkLoggedIn();
     loadRememberMe().then((value) {
       setState(() {
         rememberMe = value;
@@ -218,7 +218,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          // Forgot Password
           CheckboxListTile(
             title: Text(
               'Remember me',
@@ -235,10 +234,10 @@ class _LoginPageState extends State<LoginPage> {
           ),
           GestureDetector(
             onTap: () {
-              /* Navigator.push(
+               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
-              );*/
+                MaterialPageRoute(builder: (context) => ForgetPasswordPage()),
+              );
             },
             child: Text(
               'Forgot password ?',

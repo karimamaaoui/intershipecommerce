@@ -18,7 +18,7 @@ class _WishListState extends State<WishList> {
 
   List gridMap = [
     AnnounceModel(
-      id:1,
+      idAds:1,
       title: "white sneaker with adidas logo",
       price: 255,
       imagePrinciple: "https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=725&q=80",
@@ -26,7 +26,7 @@ class _WishListState extends State<WishList> {
       //boosted: false,
     ),
     AnnounceModel(
-      id:2,
+      idAds:2,
       title: "Black Jeans with blue stripes",
       price: 245,
       imagePrinciple:
@@ -35,7 +35,7 @@ class _WishListState extends State<WishList> {
       //boosted: false,
     ),
     AnnounceModel(
-      id:3,
+      idAds:3,
       title: "Red shoes with black stripes",
       price: 155,
       imagePrinciple:
@@ -44,7 +44,7 @@ class _WishListState extends State<WishList> {
      // boosted: false,
     ),
     AnnounceModel(
-      id:4,
+      idAds:4,
       title: "Gamma shoes with beta brand.",
       price: 275,
       imagePrinciple:
@@ -53,7 +53,7 @@ class _WishListState extends State<WishList> {
       //boosted: false,
     ),
     AnnounceModel(
-      id:5,
+      idAds:5,
       title: "Alpha t-shirt for alpha testers.",
       price: 25,
       imagePrinciple:
@@ -62,7 +62,7 @@ class _WishListState extends State<WishList> {
       //boosted: false,
     ),
     AnnounceModel(
-      id:6,
+      idAds:6,
       title: "Beta jeans for beta testers",
       price: 27,
       imagePrinciple:
@@ -71,7 +71,7 @@ class _WishListState extends State<WishList> {
       //boosted: false,
     ),
     AnnounceModel(
-      id:7,
+      idAds:7,
       title: "V&V  model white t shirts.",
       price: 55,
       imagePrinciple:

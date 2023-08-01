@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
           "AddAnnounce": (context) => AddAnnounces(),
           "EditeAnnounce": (context) => EditeAnnounce(),
           "WishList": (context)=>WishList(),
+
         }
 
 
