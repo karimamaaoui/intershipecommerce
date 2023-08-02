@@ -26,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-   //checkLoggedIn();
+   checkLoggedIn();
     loadRememberMe().then((value) {
       setState(() {
         rememberMe = value;

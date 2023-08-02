@@ -42,7 +42,6 @@ class ProfileDetailsState extends State<ProfileDetails>
 
   Future<List<dynamic>> fetchCountries() async {
     final apiUrl = 'http://10.0.2.2:5055/api/Country/getCountry';
-
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {

@@ -72,7 +72,6 @@ class ApiService {
         var refreshToken = decodedToken['refreshToken'];
         print("$refreshToken");
 
-
         var id = decodedToken['id'];
         int userId = int.parse(id);
         print("id $userId");
@@ -140,7 +139,6 @@ class ApiService {
     );
 
     print("refresh token ${response.statusCode}");
-
     if (response.statusCode == 200) {
       var responseBody = jsonDecode(response.body);
       var token = responseBody['token'];
