@@ -4,14 +4,18 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:internshipapplication/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:internshipapplication/Pages/Views/widgets/CustomButton.dart';
 import 'package:internshipapplication/Pages/core/model/AdsFeaturesModel.dart';
-import 'package:internshipapplication/Pages/core/model/AnnounceModel.dart';
-import 'package:internshipapplication/Pages/core/model/CategoryModel.dart';
+import 'package:internshipapplication/Pages/core/model/AdsModels/AnnounceModel.dart';
+import 'package:internshipapplication/Pages/core/model/CategoriesModel.dart';
 import 'package:internshipapplication/Pages/core/model/CitiesModel.dart';
 import 'package:internshipapplication/Pages/core/model/CountriesModel.dart';
-import 'package:internshipapplication/Pages/core/model/CreateAnnounceModel.dart';
+import 'package:internshipapplication/Pages/core/model/AdsModels/CreateAnnounceModel.dart';
 import 'package:internshipapplication/Pages/core/model/FeaturesModel.dart';
 import 'package:internshipapplication/Pages/core/model/FeaturesValuesModel.dart';
 import 'package:internshipapplication/Pages/core/model/ImageModel.dart';
+import 'package:internshipapplication/Pages/core/services/AdsFeaturesServices/AdsFeaturesService.dart';
+import 'package:internshipapplication/Pages/core/services/AnnouncesServices/AnnounceService.dart';
+import 'package:internshipapplication/Pages/core/services/CategoryService.dart';
+import 'package:internshipapplication/Pages/core/services/CityServices/CityService.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -133,13 +137,13 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
     CreateAnnounce an = CreateAnnounce();
 
     // print(widget.announce!.idAds!);
-    AnnounceModel? response = await an.updateAnnouncement(widget.announce!.idAds!,announce!);
+    AnnounceModel? response = await AnnounceService().updateAnnouncement(widget.announce!.idAds!,announce!);
     // Handle the response as needed
     //print(response);
 
     //save features values
     var x =response;
-    bool resDele=  await AdsFeature().deleteData(widget.announce!.idAds!);
+    bool resDele=  await AdsFeaturesService().deleteData(widget.announce!.idAds!);
     List<ListFeaturesFeatureValues> lfv = getFeatures();
     //print(lfv);
     if(resDele  && lfv!=null && lfv.length!=0){
@@ -147,9 +151,11 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
         CreateAdsFeature fd =
         new CreateAdsFeature(idAds: int.parse(x!.idAds.toString()),idFeature: int.parse(element.featureId.toString()),idFeaturesValues: int.parse(element.featureValueId.toString()),active: 1);
         //print(fd.toJson());
-        await fd.Createadsfeature(fd);
+        await AdsFeaturesService().Createfeature(fd);
       });
     }
+   // print("//////////////////////// : ${_imagesid!.length}");
+    //print("//////////////////////// : ${_imagesid[0].IdImage}");
     //update the images
     for(var i=0;i<_imagesid!.length;i++){
      // print(int.parse(_imagesid[i].IdImage.toString()));
@@ -216,7 +222,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
   /** fetch Cities */
   Future<void> fetchCities(int id) async {
     try {
-      List<CitiesModel> cities = await CitiesModel().GetData(id);
+      List<CitiesModel> cities = await CityService().GetData(id);
       setState(() {
         _cities = cities;
         _city = _cities.firstWhere((ct) => ct.idCity == widget.announce!.idCity!);
@@ -302,7 +308,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
   /** fetch Ads features and chnage the features and the features values */
   Future<void> fetchAdsFeaturesByIDAds(int idAds) async {
     try {
-      List<AdsFeature> AfList = await AdsFeature().GetAdsFeaturesByIdAds(idAds);
+      List<AdsFeature> AfList = await AdsFeaturesService().GetAdsFeaturesByIdAds(idAds);
 
         _AdsFeatures = AfList;
 
@@ -568,7 +574,7 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: FutureBuilder<List<CitiesModel>>(
-                                future: CitiesModel().GetData(CountryId),
+                                future: CityService().GetData(CountryId),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState == ConnectionState.waiting) {
                                     return CircularProgressIndicator();
@@ -826,3 +832,5 @@ class _EditeAnnounceState extends State<EditeAnnounce> {
     );
   }
 }
+
+

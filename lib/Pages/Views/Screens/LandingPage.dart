@@ -6,6 +6,7 @@ import 'package:internshipapplication/Pages/Views/Screens/BottomBar/store.dart';
 import 'package:internshipapplication/Pages/Views/Screens/HomePage.dart';
 
 class LandingPage extends StatefulWidget {
+
   const LandingPage({super.key});
 
   @override

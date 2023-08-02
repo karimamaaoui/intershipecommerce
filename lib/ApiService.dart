@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:internshipapplication/Pages/Views/Screens/LandingPage.dart';
 import 'package:internshipapplication/Pages/Views/Screens/LoginPage.dart';
 import 'package:internshipapplication/Pages/Views/Screens/OTPVerificationPage.dart';
 import 'package:internshipapplication/Pages/Views/Screens/pageSwitcher.dart';
@@ -90,7 +91,7 @@ class ApiService {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => PageSwitcher(token: token),
+                builder: (context) => LandingPage(),
               ),
             );
           } else {

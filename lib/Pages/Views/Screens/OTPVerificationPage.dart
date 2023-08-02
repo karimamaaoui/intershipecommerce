@@ -40,7 +40,6 @@ class _OTPVerificationPageState extends State<OTPVerificationPage> {
     //currentUserId = int.parse(decodedToken['id']);
     var decodedToken = JwtDecoder.decode(widget.token);
     id = decodedToken['id'] ?? '';
-
     email = decodedToken['email'];
     role=decodedToken['role'];
     print("email $email");

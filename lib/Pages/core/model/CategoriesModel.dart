@@ -11,10 +11,10 @@ class CategoriesModel {
   int? Active;
 
   CategoriesModel({
-     this.idCateg,
-     this.title,
-     this.description,
-     this.image,
+    this.idCateg,
+    this.title,
+    this.description,
+    this.image,
     this.idparent,
     this.children = const [],
     this.Active

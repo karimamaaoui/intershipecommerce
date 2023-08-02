@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:internshipapplication/Pages/Views/Screens/MyAppBAr.dart';
+import 'package:flutter/material.dart';
 
 class Deals extends StatefulWidget {
   const Deals({super.key});
