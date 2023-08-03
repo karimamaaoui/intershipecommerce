@@ -1,10 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:path/path.dart' as path;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:internshipapplication/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:internshipapplication/Pages/Views/widgets/side_bar.dart';
 import 'package:internshipapplication/Pages/app_color.dart';
+import 'package:internshipapplication/constants.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:http/http.dart' as http;
 
@@ -25,23 +30,128 @@ class ProfileDetailsState extends State<ProfileDetails>
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _countryController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
+  TextEditingController _pictureController = TextEditingController();
 
   bool _status = true;
   final FocusNode myFocusNode = FocusNode();
-  String email="";
-  String firstname="";
-  String lastname="";
-  String phone="";
-  String country="";
-  String address="";
+  String email = "";
+  String firstname = "";
+  String lastname = "";
+  String phone = "";
+  String country = "";
+  String address = "";
   String _selectedCountry = '';
   String selectedCountry = '';
-  String id="";
+  String id = "";
+  String picture = "";
+  File? _selectedImage;
+  Uint8List? _selectedImageBytes;
+
+  Future<void> _selectImage() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.getImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      setState(() {
+        _selectedImage = File(pickedImage.path);
+        _selectedImageBytes = _selectedImage?.readAsBytesSync();
+        String imageName = path.basename(_selectedImage!.path);
+        picture = imageName;
+        print("picutre $picture");
+        _pictureController.text = picture;
+      });
+    }
+  }
 
 
+  Future<Map<String, dynamic>> fetchUserData() async {
+    final apiUrl = '$baseUrl/User/GetUserById?id=$id';
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+
+        if (jsonData is Map<String, dynamic>) {
+          return jsonData;
+        } else {
+          throw Exception('Invalid response format');
+        }
+      } else {
+        throw Exception('Failed to fetch user data');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+  @override
+  void initState() {
+    super.initState();
+    var decodedToken = JwtDecoder.decode(widget.token);
+    id = decodedToken['id'] ?? '';
+
+    fetchUserData().then((user) {
+      setState(() {
+        email = user['email'];
+        firstname = user['firstname'];
+        lastname = user['lastname'];
+        phone = user['phone'];
+        address = user['address'];
+        country = user['country'];
+        picture = user['picture'];
+
+        _emailController.text = email;
+        _firstnameController.text = firstname;
+        _lastnameController.text = lastname;
+        _phoneController.text = phone;
+        _addressController.text = address;
+        _countryController.text = country;
+        _pictureController.text = picture;
+        // Add print statements to check the values
+        print('Email: ${_emailController.text}');
+        print('Firstname: ${_firstnameController.text}');
+        print('Lastname: ${_lastnameController.text}');
+        print('Phone: ${_phoneController.text}');
+        print('Address: ${_addressController.text}');
+        print('Country: ${_countryController.text}');
+        print('Picture: ${_pictureController.text}');
+      });
+    });
+
+
+    fetchCountries().then((List<dynamic> fetchedCountries) {
+      setState(() {
+        countries = fetchedCountries
+            .map((country) => country['title'].toString())
+            .toList();
+      });
+    });
+  }
+
+  Future<void> updateUserInformation(Map<String, dynamic> updatedUser) async {
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/User/UpdateUser?id=$id'),
+        headers: {
+          'Content-Type': 'application/json',
+
+        },
+        body: json.encode(updatedUser),
+      );
+
+      print(json.encode(updatedUser));
+      if (response.statusCode == 200) {
+        print("User updated successfully!");
+      } else {
+        print("Failed to update user. Status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error while updating user: $e");
+    }
+  }
 
   Future<List<dynamic>> fetchCountries() async {
-    final apiUrl = 'http://10.0.2.2:5055/api/Country/getCountry';
+    final apiUrl = '$baseUrl/api/Country/getCountry';
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
@@ -62,98 +172,15 @@ class ProfileDetailsState extends State<ProfileDetails>
 
   List<String> countries = [];
 
-  Future<Map<String, dynamic>> fetchUserData() async {
-    final apiUrl = 'http://10.0.2.2:5055/User/GetUserById?id=$id';
-
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        if (jsonData is Map<String, dynamic>) {
-          return jsonData;
-        } else {
-          throw Exception('Invalid response format');
-        }
-      } else {
-        throw Exception('Failed to fetch user data');
-      }
-    } catch (e) {
-      throw Exception('Error: $e');
-    }
-  }
-
-
-  @override
-  void initState() {
-
-    super.initState();
-    var decodedToken = JwtDecoder.decode(widget.token);
-    id = decodedToken['id'] ?? '';
-   /* email = decodedToken['email'] ?? '';
-    firstname = decodedToken['firstname'] ?? '';
-    lastname = decodedToken['lastname'] ?? '';
-    phone = decodedToken['phone'] ?? '';
-    address = decodedToken['address'] ?? '';
-    country = decodedToken['country'] ?? '';
-     _emailController.text = email;
-    _firstnameController.text = firstname;
-    _phoneController.text = phone;
-    _countryController.text = country;
-    _addressController.text = address;
-    _lastnameController.text=lastname;
-*/
-    fetchUserData().then((user) {
-      setState(() {
-        email = user['email'];
-        firstname = user['firstname'];
-        lastname = user['lastname'];
-        phone = user['phone'];
-        address = user['address'];
-        country = user['country'];
-        _emailController.text = email;
-        _firstnameController.text = firstname;
-        _phoneController.text = phone;
-        _countryController.text = country;
-        _addressController.text = address;
-        _lastnameController.text = lastname;
-      });
-    });
-
-    fetchCountries().then((List<dynamic> fetchedCountries) {
-      setState(() {
-        countries = fetchedCountries.map((country) => country['title'].toString()).toList();
-      });
-    });
-  }
-  Future<void> updateUserInformation(Map<String, dynamic> updatedUser) async {
-    try {
-      final response = await http.put(
-        Uri.parse('http://10.0.2.2:5055/User/UpdateUser?id=$id'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(updatedUser),
-      );
-
-      if (response.statusCode == 200) {
-        print("User updated successfully!");
-      } else {
-        print("Failed to update user. Status code: ${response.statusCode}");
-      }
-    } catch (e) {
-      print("Error while updating user: $e");
-    }
-  }
-
 
   @override
   Widget build(BuildContext context) {
-    String? dropdownValue = _selectedCountry.isNotEmpty ? _selectedCountry : null;
+    String? dropdownValue =
+        _selectedCountry.isNotEmpty ? _selectedCountry : null;
 
     return Scaffold(
       drawer: SideBar(),
       appBar: MyAppBar(Daimons: 122, title: "Profile Details"),
-
       body: Container(
         color: Colors.white,
         child: ListView(
@@ -179,12 +206,22 @@ class ProfileDetailsState extends State<ProfileDetails>
                                   height: 140.0,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    image: DecorationImage(
+                                    image: picture.isNotEmpty
+                                        ? DecorationImage(
+                                      image: NetworkImage(
+                                          'http://10.0.2.2:5055/images/${picture}'),
+
+                                      fit: BoxFit.cover,
+                                    )
+                                        : DecorationImage(
                                       image: AssetImage('assets/images/as.png'),
                                       fit: BoxFit.cover,
                                     ),
                                   ),
                                 ),
+
+
+
                               ],
                             ),
                             Padding(
@@ -192,12 +229,15 @@ class ProfileDetailsState extends State<ProfileDetails>
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
-                                  CircleAvatar(
-                                  backgroundColor: AppColor.primary,
-                                    radius: 25.0,
-                                    child: Icon(
-                                      Icons.camera_alt,
-                                      color: Colors.white,
+                                  InkWell(
+                                    onTap: _selectImage,
+                                    child: CircleAvatar(
+                                      backgroundColor: AppColor.primary,
+                                      radius: 25.0,
+                                      child: Icon(
+                                        Icons.camera_alt,
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -286,13 +326,15 @@ class ProfileDetailsState extends State<ProfileDetails>
                             children: <Widget>[
                               Flexible(
                                 child: TextField(
+
                                   controller: _firstnameController,
                                   decoration: InputDecoration(
-                                    hintText: firstname.isEmpty ? "Enter Firstname" : firstname,
+                                    hintText: firstname.isNotEmpty ? firstname : "Enter First Name",
                                   ),
                                   enabled: !_status,
                                   autofocus: !_status,
                                 ),
+
                               ),
                             ],
                           ),
@@ -337,7 +379,9 @@ class ProfileDetailsState extends State<ProfileDetails>
                                 child: TextField(
                                   controller: _lastnameController,
                                   decoration: InputDecoration(
-                                    hintText: lastname.isEmpty ? "Enter Lastname" : lastname,
+                                    hintText: lastname.isEmpty
+                                        ? "Enter Lastname"
+                                        : lastname,
                                   ),
                                   enabled: !_status,
                                   autofocus: !_status,
@@ -346,7 +390,7 @@ class ProfileDetailsState extends State<ProfileDetails>
                             ],
                           ),
                         ),
-//email
+                      //email
                         Padding(
                           padding: EdgeInsets.only(
                             left: 25.0,
@@ -385,8 +429,8 @@ class ProfileDetailsState extends State<ProfileDetails>
                                 child: TextField(
                                   controller: _emailController,
                                   decoration: InputDecoration(
-                                    hintText: email.isEmpty ? "Enter Email " : email,
-
+                                    hintText:
+                                        email.isEmpty ? "Enter Email " : email,
                                   ),
                                   enabled: !_status,
                                 ),
@@ -434,7 +478,9 @@ class ProfileDetailsState extends State<ProfileDetails>
                                 child: TextField(
                                   controller: _phoneController,
                                   decoration: InputDecoration(
-                                    hintText: phone.isEmpty ? "Enter Mobile Number" : phone,
+                                    hintText: phone.isEmpty
+                                        ? "Enter Mobile Number"
+                                        : phone,
                                   ),
                                   enabled: !_status,
                                 ),
@@ -482,7 +528,9 @@ class ProfileDetailsState extends State<ProfileDetails>
                                 child: TextField(
                                   controller: _addressController,
                                   decoration: InputDecoration(
-                                    hintText: address.isEmpty ? "Enter Address" : address,
+                                    hintText: address.isEmpty
+                                        ? "Enter Address"
+                                        : address,
                                   ),
                                   enabled: !_status,
                                 ),
@@ -527,15 +575,16 @@ class ProfileDetailsState extends State<ProfileDetails>
                             mainAxisSize: MainAxisSize.max,
                             children: <Widget>[
                               Flexible(
-                                child:
-                                DropdownButton<String>(
-                                  value: _selectedCountry.isNotEmpty ? _selectedCountry : "",
+                                child: DropdownButton<String>(
+                                  value: _selectedCountry.isNotEmpty
+                                      ? _selectedCountry
+                                      : "",
                                   onChanged: !_status
                                       ? (String? newValue) {
-                                    setState(() {
-                                      _selectedCountry = newValue!;
-                                    });
-                                  }
+                                          setState(() {
+                                            _selectedCountry = newValue!;
+                                          });
+                                        }
                                       : null,
                                   items: [
                                     DropdownMenuItem<String>(
@@ -544,7 +593,6 @@ class ProfileDetailsState extends State<ProfileDetails>
                                     ),
                                     ...countries.map((country) {
                                       return DropdownMenuItem<String>(
-
                                         value: country,
                                         child: Text(country),
                                       );
@@ -633,8 +681,6 @@ class ProfileDetailsState extends State<ProfileDetails>
 
                          */
 
-
-
                         !_status ? _getActionButtons() : Container(),
                       ],
                     ),
@@ -650,7 +696,6 @@ class ProfileDetailsState extends State<ProfileDetails>
 
   @override
   void dispose() {
-    // Clean up the controller when the Widget is disposed
     myFocusNode.dispose();
     super.dispose();
   }
@@ -666,47 +711,45 @@ class ProfileDetailsState extends State<ProfileDetails>
             child: Padding(
               padding: EdgeInsets.only(right: 10.0),
               child: Container(
-                child:
-                ElevatedButton(
-                  onPressed: () {
+                  child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _status = true;
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  });
+                  var updatedUser = {
+                    'firstname': _firstnameController.text.isNotEmpty
+                        ? _firstnameController.text
+                        : firstname,
+                    'lastname': _lastnameController.text.isNotEmpty
+                        ? _lastnameController.text
+                        : lastname,
+                    'email': _emailController.text.isNotEmpty ? _emailController.text : email,
+                    'phone': _phoneController.text.isNotEmpty ? _phoneController.text : phone,
+                    'address': _addressController.text.isNotEmpty
+                        ? _addressController.text
+                        : address,
+                    'country': _selectedCountry.isNotEmpty ? _selectedCountry : country,
+                  };
+
+                  updateUserInformation(updatedUser).then((_) {
                     setState(() {
-                      _status = true;
-                      FocusScope.of(context).requestFocus(FocusNode());
+                      _status = false;
                     });
-
-                    // Prepare the updated user data based on the text controller values
-                    var updatedUser = {
-                      'firstname': _firstnameController.text,
-                      'lastname': _lastnameController.text,
-                      'email': _emailController.text,
-                      'phone': _phoneController.text,
-                      'address': _addressController.text,
-                      'country': _selectedCountry,
-                    };
-
-                    // Call the separate method to update the user
-                    updateUserInformation(updatedUser).then((_) {
-                      // Re-enable the button after the API call is completed
-                      setState(() {
-                        _status = false;
-                      });
-                    });
-                    _showUpdateSuccessAlert();
-
-                  },
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
+                  });
+                  _showUpdateSuccessAlert();
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.green,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
                   ),
-                  child: Text(
-                    "Save",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                )
-
-              ),
+                ),
+                child: Text(
+                  "Save",
+                  style: TextStyle(color: Colors.white),
+                ),
+              )),
             ),
             flex: 2,
           ),
@@ -748,7 +791,6 @@ class ProfileDetailsState extends State<ProfileDetails>
           _status = false;
         });
         FocusScope.of(context).requestFocus(myFocusNode);
-
       },
       child: CircleAvatar(
         backgroundColor: AppColor.primary,
@@ -761,6 +803,7 @@ class ProfileDetailsState extends State<ProfileDetails>
       ),
     );
   }
+
   void _showUpdateSuccessAlert() {
     showDialog(
       context: context,
@@ -780,5 +823,4 @@ class ProfileDetailsState extends State<ProfileDetails>
       },
     );
   }
-
 }

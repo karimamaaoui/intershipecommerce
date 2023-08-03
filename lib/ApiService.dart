@@ -5,11 +5,11 @@ import 'package:internshipapplication/Pages/Views/Screens/LandingPage.dart';
 import 'package:internshipapplication/Pages/Views/Screens/LoginPage.dart';
 import 'package:internshipapplication/Pages/Views/Screens/OTPVerificationPage.dart';
 import 'package:internshipapplication/Pages/Views/Screens/pageSwitcher.dart';
+import 'package:internshipapplication/constants.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://10.0.2.2:5055';
 
   static Future<bool> login(BuildContext context, String email, String password) async {
     var url = Uri.parse("$baseUrl/User/login");

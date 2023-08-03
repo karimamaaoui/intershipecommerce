@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:internshipapplication/ApiService.dart';
 import 'package:internshipapplication/Pages/Views/Screens/FogotPassword.dart';
+import 'package:internshipapplication/Pages/Views/Screens/LandingPage.dart';
 import 'package:internshipapplication/Pages/Views/Screens/RegisterPage.dart';
 import 'package:internshipapplication/Pages/Views/Screens/pageSwitcher.dart';
 import 'package:internshipapplication/Pages/app_color.dart';
@@ -26,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
-   //checkLoggedIn();
+    checkLoggedIn();
     loadRememberMe().then((value) {
       setState(() {
         rememberMe = value;
@@ -55,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
       if (userRole == "User") {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => PageSwitcher(token: token)),
+          MaterialPageRoute(builder: (context) => LandingPage()),
         );
       } else {
         Navigator.pushReplacement(

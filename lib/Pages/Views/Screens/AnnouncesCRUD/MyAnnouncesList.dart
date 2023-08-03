@@ -20,6 +20,7 @@ class _MyAnnouncesState extends State<MyAnnounces> {
   List<AnnounceModel> announces = [];
   int MaxPage = 0;
   int page = 0;
+  String? imageUrl;
 
 //get all announces by user
   Future<List<AnnounceModel>> apicall(int iduser ) async {
@@ -130,7 +131,9 @@ class _MyAnnouncesState extends State<MyAnnounces> {
                                           color: Colors.black.withOpacity(0)),
                                       image: DecorationImage(
                                         image: NetworkImage(
-                                            'https://10.0.2.2:7058${announces[index].imagePrinciple}'),
+
+                                            'https://10.0.2.2:7058${announces[index].imageUrl }'
+                                        ),
                                         // Replace with your image path
                                         fit: BoxFit.fill,
                                       ),

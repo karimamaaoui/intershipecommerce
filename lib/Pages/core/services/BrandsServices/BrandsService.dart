@@ -2,6 +2,8 @@ import 'package:internshipapplication/Pages/core/model/BrandsModel.dart';
 import  'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:internshipapplication/constants.dart';
+
 
 class BrandsService{
 
@@ -9,7 +11,7 @@ class BrandsService{
   Future<List<BrandsModel>> GetAllBrands() async {
     http.Response response;
     response = await http
-        .get(Uri.parse("https://10.0.2.2:7058/api/Brands"));
+        .get(Uri.parse("$baseUrl/api/Brands"));
 
     if (response.statusCode == 200) {
       var responseBody = response.body;
@@ -27,7 +29,7 @@ class BrandsService{
   //get Brand
   Future<BrandsModel> GetCategoryById( int id) async {
     http.Response response;
-    response = await http.get(Uri.parse("https://10.0.2.2:7058/api/Brands/$id"));
+    response = await http.get(Uri.parse("$baseUrl/api/Brands/$id"));
     print(response.body);
     if (response.statusCode == 200) {
       BrandsModel brand = (jsonDecode(response.body));

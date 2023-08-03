@@ -2,11 +2,13 @@ import 'package:internshipapplication/Pages/core/model/AdsFeaturesModel.dart';
 import  'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:internshipapplication/constants.dart';
+
 class AdsFeaturesService{
 
   Future<void> Createfeature (CreateAdsFeature adModel) async {
 
-    final apiUrl = 'https://10.0.2.2:7058/api/AdsFeatureControler';
+    final apiUrl = '$baseUrl/api/AdsFeatureControler';
 
     try {
       final response = await http.post(
@@ -34,7 +36,7 @@ class AdsFeaturesService{
   Future<List<AdsFeature>> GetAdsFeaturesByIdAds(int iduser) async {
     http.Response response;
     response = await http
-        .get(Uri.parse("https://10.0.2.2:7058/api/AdsFeatureControler?idAds=$iduser"));
+        .get(Uri.parse("$baseUrl/api/AdsFeatureControler?idAds=$iduser"));
 
     if (response.statusCode == 200) {
       var responseBody = response.body;

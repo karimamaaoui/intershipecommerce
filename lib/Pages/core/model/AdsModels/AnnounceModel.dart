@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 class AnnounceModel {
   int? idAds;
   String? title;
+  String? imageUrl;
   String? description;
   String? details;
   int? price;
@@ -41,7 +42,8 @@ class AnnounceModel {
         this.cities,
         this.locations,
         this.active,
-        this.like
+        this.like,
+        this.imageUrl
       });
 
   AnnounceModel.fromJson(Map<String, dynamic> json) {
@@ -53,6 +55,8 @@ class AnnounceModel {
     imagePrinciple = json['imagePrinciple'];
     videoName = json['videoName'];
     idCateg = json['idCateg'];
+    imageUrl = "http://10.0.2.2:5055/images/${json['imagePrinciple']}";
+
     categories = json['categories'] != null
         ? new CategoriesModel.fromJson(json['categories'])
         : null;

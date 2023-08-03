@@ -1,13 +1,13 @@
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:internshipapplication/Pages/Views/Screens/searchResultPage.dart';
 import 'package:internshipapplication/Pages/Views/widgets/popular_search_card.dart';
 import 'package:internshipapplication/Pages/Views/widgets/search_history_tile.dart';
 import 'package:internshipapplication/Pages/app_color.dart';
 import 'package:internshipapplication/Pages/core/model/Search.dart';
 import 'package:internshipapplication/Pages/core/services/SearchService.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 class SearchPage extends StatefulWidget {
   @override
   _SearchPageState createState() => _SearchPageState();

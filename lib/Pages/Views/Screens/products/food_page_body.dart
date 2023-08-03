@@ -9,6 +9,7 @@ import 'package:internshipapplication/Pages/Views/Screens/products/iconandtextwi
 import 'package:internshipapplication/Pages/Views/Screens/products/product.dart';
 import 'package:internshipapplication/Pages/Views/Screens/products/productDetailsScreen.dart';
 import 'package:internshipapplication/Pages/Views/Screens/products/productListScreen.dart';
+import 'package:internshipapplication/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -37,7 +38,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
         _currentPageValue = pageController.page!;
       });
     });
-    _refreshToken();
+ //   _refreshToken();
 
   }
 
@@ -47,9 +48,9 @@ class _FoodPageBodyState extends State<FoodPageBody> {
   }
   List<Product> products = [];
   List<Product> recentproducts = [];
-  bool refreshingToken = false;
+ // bool refreshingToken = false;
 
-  Future<void> _refreshToken() async {
+ /* Future<void> _refreshToken() async {
     if (refreshingToken) return;
 
     refreshingToken = true;
@@ -75,7 +76,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
 
     refreshingToken = false;
   }
-
+*/
   Future<void> fetchProducts() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -86,7 +87,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
     };
 
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:5055/api/Product/GetProductAll'),
+        Uri.parse('$baseUrl/api/Product/GetProductAll'),
         headers: headers,
       );
 
@@ -104,7 +105,7 @@ class _FoodPageBodyState extends State<FoodPageBody> {
   }
 
   Future<void> fetchRecentsProducts({int page = 1, int pageSize = 5}) async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:5055/api/Product/GetRecentProducts?page=$page&pageSize=$pageSize'));
+    final response = await http.get(Uri.parse('$baseUrl/api/Product/GetRecentProducts?page=$page&pageSize=$pageSize'));
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);

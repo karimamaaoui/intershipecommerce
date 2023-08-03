@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:internshipapplication/Pages/Views/Screens/products/Category.dart';
+import 'package:internshipapplication/constants.dart';
 class CategoryPage extends StatefulWidget {
   const CategoryPage({Key? key}) : super(key: key);
 
@@ -20,7 +21,7 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   Future<void> fetchCategories() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:5055/api/Categorie/GetCategorieAll'));
+    final response = await http.get(Uri.parse('$baseUrl/api/Categorie/GetCategorieAll'));
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);

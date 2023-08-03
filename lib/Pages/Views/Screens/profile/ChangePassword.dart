@@ -3,6 +3,7 @@ import 'package:internshipapplication/Pages/Views/Screens/MyAppBAr.dart';
 import 'package:internshipapplication/Pages/Views/Screens/profile/profileScreen.dart';
 import 'package:internshipapplication/Pages/Views/widgets/side_bar.dart';
 import 'package:internshipapplication/Pages/app_color.dart';
+import 'package:internshipapplication/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -102,7 +103,7 @@ class _UpdatePasswordPageState extends State<UpdatePasswordPage> {
 
           print("fffffffffffffffffffffffffffffffffffffffffffffffffffffffff ${_newPassword}");
           final response = await http.put(
-            Uri.parse('http://10.0.2.2:5055/User/update-password?currentPassword=${_currentPassword}&newPassword=${_newPassword}'),
+            Uri.parse('$baseUrl/User/update-password?currentPassword=${_currentPassword}&newPassword=${_newPassword}'),
             headers: {
               'Authorization': 'Bearer ${widget.token}',
               'Content-Type': 'application/json',

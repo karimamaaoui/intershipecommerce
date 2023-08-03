@@ -1,9 +1,11 @@
 
 import 'package:flutter/material.dart';
+import 'package:internshipapplication/ApiService.dart';
 import 'package:internshipapplication/Pages/Views/Screens/BottomBar/announces.dart';
 import 'package:internshipapplication/Pages/Views/Screens/BottomBar/deals.dart';
 import 'package:internshipapplication/Pages/Views/Screens/BottomBar/store.dart';
 import 'package:internshipapplication/Pages/Views/Screens/HomePage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LandingPage extends StatefulWidget {
 
@@ -14,6 +16,42 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshToken();
+
+  }
+
+  bool refreshingToken = false;
+
+  Future<void> _refreshToken() async {
+    if (refreshingToken) return;
+
+    refreshingToken = true;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? refreshToken = prefs.getString('refreshToken');
+    print("refreshToken frol food $refreshToken");
+    if (refreshToken != null) {
+
+      bool success = await ApiService.refreshToken(refreshToken);
+
+      if (success) {
+        String? updatedToken = prefs.getString('token');
+        if (updatedToken != null) {
+          await prefs.setString('token', updatedToken);
+        }
+
+        print("Token refreshed successfully");
+      } else {
+        print("Failed to refresh token");
+      }
+    }
+
+    refreshingToken = false;
+  }
 
   int currentTab=0;
   final List<Widget> screens=[
